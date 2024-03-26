@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create a Student</title>
+</head>
+
+<body>
+  <form action="" th:action="@{/aluno/addAluno}" th:object="${aluno}" method="post">
+    <p>First Name: <input type="text" name="first_name" placeholder="Insira seu primeiro nome" /></p>
+    <p>Last Name: <input type="text" name="last_name" placeholder="Insira seu último nome" /></p>
+    <p>Email: <input type="text" name="email" placeholder="Insira seu email" /></p>
+    <p>Course:
+      <select name="course">
+        <option value="" selected hidden>Choose one</option>
+        {% for course in courses %}
+        <option value="{{course.id}}">{{course.name}}</option>
+        {% endfor %}
+      </select>
+    </p>
+    <p> Programming Language:
+      <input type="radio" name="language" value="Java">Java</input>
+      <input type="radio" name="language" value="C">C</input>
+      <input type="radio" name="language" value="Python">Python</input>
+      <input type="radio" name="language" value="Javascript">Javascript</input>
+    </p>
+    <p> Operational Systems:
+      {% for os in opsys %}
+      <input type="checkbox" name="operational_systems" value="{{os}}">{{os}}</input>
+      {% endfor %}
+    </p>
+    <p><input type="submit" value="Create" /></p>
+  </form>
+
+  <a href="/students">Back to Student List</a>
+
+
+</body>
+
+</html>

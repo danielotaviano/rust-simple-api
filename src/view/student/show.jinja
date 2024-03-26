@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Show a Student</title>
+</head>
+
+<body>
+    {% if student %}
+    <p>Id: {{student.id}}</p>
+    <p>First Name: {{student.first_name}}</p>
+    <p>Last Name: {{student.last_name}}</p>
+    <p>Email: {{student.email}}</p>
+    <p>Course: {{course.name}}</p>
+    <p> Programming Language:{{student.language}}</p>
+    <p> Operational Systems:
+    <ul>
+        {% for os in student.operational_systems %}
+        <li>{{os}}</li>
+        {% endfor %}
+    </ul>
+    </p>
+    {% else %}
+    <h2>Student not found!</h2>
+    {% endif %}
+    <a href="/students">Back to Student List</a>
+</body>
+
+</html>

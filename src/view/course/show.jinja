@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Show a Course</title>
+</head>
+
+<body>
+    {% if course %}
+    <p>Id: {{course.id}}</p>
+    <p>First Name: {{course.name}}</p>
+    {% else %}
+    <h2>Course not found!</h2>
+    {% endif %}
+    <a href="/courses">Back to Course List</a>
+</body>
+
+</html>

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Avatar List</title>
+</head>
+
+<body>
+  <h1>Avatar List</h1>
+  <ul id="avatar-list">
+    {% for avatar in avatars %}
+    <li>
+      <p>Fantasy Name: {{avatar.avatar.fantasy_name}}</p>
+      <p>Student Name: {{avatar.student.first_name}} {{avatar.student.last_name}}</p>
+    </li>
+    {% endfor %}
+  </ul>
+
+  <a href="/avatar/create">Add Avatar</a>
+  <a href="/">Return to menu</a>
+</body>
+
+
+</html>

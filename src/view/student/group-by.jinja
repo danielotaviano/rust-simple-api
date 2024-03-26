@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student List</title>
+</head>
+
+<body>
+  <h1>Student List by {{entity}}</h1>
+  <ul>
+    {% for entity in entities %}
+    <li>
+      <h2>{{entity.name}}</h2>
+      <p>{{entity.total}} students in total</p>
+      <ul>
+        {% for student in entity.students %}
+        <li>
+          <a href="/student/{{student.id}}">{{student.first_name}}</a>
+        </li>
+        {% endfor %}
+      </ul>
+    </li>
+    {% endfor %}
+  </ul>
+  <a href="/students">Return to Student list</a>
+  <a href="/">Return to menu</a>
+</body>
+
+</html>

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create a Avatar</title>
+</head>
+
+<body>
+  <form action="" method="post">
+    <p>Avatar Name: <input type="text" name="name" placeholder="Insert here the avatar name" /></p>
+    <p>Student:
+      <select name="student">
+        <option value="" selected hidden>Choose one</option>
+        {% for student in students %}
+        <option value="{{student.id}}">{{student.first_name}} {{student.last_name}}</option>
+        {% endfor %}
+      </select>
+    </p>
+    <p><input type="submit" value="Create" /></p>
+  </form>
+
+  <a href="/avatars">Back to Avatar List</a>
+
+
+</body>
+
+</html>

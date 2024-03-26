@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Course List</title>
+</head>
+
+<body>
+  <h1>Course List</h1>
+  <ul id="student-list">
+    {% for course in courses %}
+    <li><a href="/course/{{course.id}}">{{course.name}}</a>
+      <button onclick="editCourse('{{course.id}}')">Edit</button>
+      <button onclick="deleteCourse('{{course.id}}')">Delete</button>
+    </li>
+    {% endfor %}
+  </ul>
+
+  <a href="/course/create">Add Course</a>
+  <a href="/">Return to menu</a>
+</body>
+
+<script>
+  function deleteCourse(id) {
+    fetch(`/course/${id}`, {
+      method: 'DELETE'
+    }).then(async (resp) => {
+      const statusCode = resp.status;
+
+      if (statusCode !== 200) {
+        return alert(await resp.text());
+      }
+
+      window.location.reload();
+
+    });
+  }
+
+  function editCourse(id) {
+    window.location.href = `/course/${id}/edit`;
+    
+  }
+</script>
+
+</html>

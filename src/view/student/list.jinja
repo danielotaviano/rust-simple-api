@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student List</title>
+</head>
+
+<body>
+  <h1>Student List</h1>
+  <ul id="student-list">
+    {% for payload in payloads %}
+    <li><a href="/student/{{payload.student.id}}">{{payload.student.first_name}}</a> {% if payload.avatar %}
+      ({{payload.avatar.fantasy_name}}) {% endif %}
+      <button onclick="deleteStudent('{{payload.student.id}}')">Delete</button>
+    </li>
+    {% endfor %}
+  </ul>
+
+  <div style="display: flex; flex-direction: row; gap: 10px;">
+    <a href="/student/create">Add Student</a>
+    <a href="/">Return to menu</a>
+  </div>
+  <div style="display: flex; flex-direction: row; gap: 10px; margin-top: 5px;">
+    <a href="/students/group-by?entity=course">Group by Course</a>
+    <a href="/students/group-by?entity=language">Group by Language</a>
+    <a href="/students/group-by?entity=os">Group by Os</a>
+  </div>
+</body>
+
+<script>
+  function deleteStudent(id) {
+    fetch(`/student/${id}`, {
+      method: 'DELETE'
+    }).then(async (resp) => {
+      const statusCode = resp.status;
+
+      if (statusCode !== 200) {
+        return alert(await resp.text());
+      }
+
+      window.location.reload();
+
+    });
+  }
+</script>
+
+</html>
