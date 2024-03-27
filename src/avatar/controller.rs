@@ -93,9 +93,10 @@ pub async fn create_avatar(Form(payload): Form<CreateAvatarControllerModel>) -> 
 
     let already_exists_avatar = avatar::service::SERVICE
         .get_by_student_id(&payload.student)
-        .await;
+        .await
+        .expect("Error when trying to get an avatar");
 
-    if let Ok(_) = already_exists_avatar {
+    if let Some(_) = already_exists_avatar {
         return (
             StatusCode::BAD_REQUEST,
             "This student already has a avatar!",

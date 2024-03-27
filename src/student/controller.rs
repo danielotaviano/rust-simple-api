@@ -1,8 +1,9 @@
 use super::model::Student;
 use super::service::SERVICE;
-use crate::avatar;
 use crate::avatar::model::Avatar;
+use crate::subject::model::Subject;
 use crate::view::get_template;
+use crate::{avatar, subject};
 use crate::{course, student::service::GroupBy};
 use axum::{
     extract::{Path, Query},
@@ -108,10 +109,20 @@ pub async fn show_student_html(Path(student_id): Path<String>) -> impl IntoRespo
             let course = course::service::SERVICE
                 .get_course_by_id(&student.get_course())
                 .await
-                .unwrap();
+                .expect("error when trying to get course");
+
+            let subjects: Option<Vec<Subject>> = match &course {
+                None => None,
+                Some(c) => Some(
+                    subject::service::SERVICE
+                        .list_by_course_id(&c.get_id())
+                        .await
+                        .expect("Error whwn trying to get subjects"),
+                ),
+            };
 
             let template = get_template("student/show").unwrap();
-            let r = render!(template, student => student, course => course);
+            let r = render!(template, student => student, course => course, subjects, subjects);
 
             Html(r).into_response()
         }

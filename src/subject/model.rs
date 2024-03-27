@@ -1,6 +1,7 @@
 use nanoid::nanoid;
+use serde::Serialize;
 
-#[derive(Clone)]
+#[derive(Clone, Serialize)]
 pub struct Subject {
     pub id: String,
     pub code: String,
@@ -9,7 +10,7 @@ pub struct Subject {
 }
 
 impl Subject {
-    fn new(code: &str, name: &str, program: &str) -> Self {
+    pub fn new(code: &str, name: &str, program: &str) -> Self {
         Self {
             id: Self::generate_id(),
             code: code.to_string(),

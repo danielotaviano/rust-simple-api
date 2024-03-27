@@ -53,7 +53,12 @@ async fn main() -> Result<(), Error> {
             "/avatar/create",
             get(avatar::controller::create_avatar_html).post(avatar::controller::create_avatar),
         )
-        .route("/avatars", get(avatar::controller::list_avatar_html));
+        .route("/avatars", get(avatar::controller::list_avatar_html))
+        .route(
+            "/subject/create",
+            get(subject::controller::create_html).post(subject::controller::create),
+        )
+        .route("/subjects", get(subject::controller::list_html));
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
     axum::serve(listener, app).await.unwrap();

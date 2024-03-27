@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create a Course</title>
+</head>
+
+<body>
+  <form action="" method="post">
+    <p>Subject Code: <input type="text" name="code" placeholder="Insert here the subject code" /></p>
+    <p>Subject Name: <input type="text" name="name" placeholder="Insert here the subject name" /></p>
+    <p> Subject Courses:
+      <select name="courses" multiple>
+        {% for course in courses %}
+        <option value="{{course.id}}">{{course.name}}</option>
+        {% endfor %}
+      </select>
+    </p>
+    <p>Subject Program: <textarea name="program" placeholder="Insert here the subject program"></textarea></p>
+    <p><input type="submit" value="Create" /></p>
+  </form>
+
+  <a href="/courses">Back to Subject List</a>
+
+
+</body>
+
+</html>

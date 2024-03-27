@@ -22,6 +22,13 @@
         {% endfor %}
     </ul>
     </p>
+    <p> Subjects:
+    <ul>
+        {% for subject in subjects %}
+        <li>{{subject.name}}</li>
+        {% endfor %}
+    </ul>
+    </p>
     {% else %}
     <h2>Student not found!</h2>
     {% endif %}

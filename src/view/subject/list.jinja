@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Subject List</title>
+</head>
+
+<body>
+  <h1>Subject List</h1>
+  <div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 17px;">
+    {% for payload in payloads %}
+    <div style="border: 1px solid black; display: flex; flex-direction: column; align-items: start;">
+      <h2 style="margin: 0; padding-left: 5px; padding-right: 5px;">{{payload.subject.code}}</h2>
+      <ul>
+        <li>Code: {{payload.subject.code}}</li>
+        <li>Name: {{payload.subject.name}}</li>
+        <li>Program: {{payload.subject.program}}</li>
+        <li>Courses: <ul>
+            {% for course in payload.courses %}
+            <li>{{course.name}}</li>
+            {% endfor %}
+          </ul>
+        </li>
+      </ul>
+    </div>
+    {% endfor %}
+  </div>
+
+  <a href="/subject/create">Add Subject</a>
+  <a href="/">Return to menu</a>
+</body>
+
+
+</html>
