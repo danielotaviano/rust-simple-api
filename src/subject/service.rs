@@ -1,4 +1,3 @@
-use crate::{course, student};
 use once_cell::sync::Lazy;
 
 use super::{
@@ -28,10 +27,6 @@ impl Service {
     ) -> Result<Subject, String> {
         let subject = Subject::new(code, name, program);
         self.repository.save(&subject, courses_id).await
-    }
-
-    pub async fn list(&self) -> Result<Vec<Subject>, String> {
-        self.repository.list().await
     }
 
     pub async fn list_with_courses(&self) -> Result<Vec<SubjectWithCourses>, String> {

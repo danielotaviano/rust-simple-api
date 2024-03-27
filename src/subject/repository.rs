@@ -32,20 +32,6 @@ impl Repository {
         nanoid!(10, &ALPHABET)
     }
 
-    pub async fn list(&self) -> Result<Vec<Subject>, String> {
-        let subjects = sqlx::query_as!(
-            Subject,
-            r#"
-            SELECT * FROM subject
-            "#,
-        )
-        .fetch_all(self.database)
-        .await
-        .expect("Error when trying to get subjects");
-
-        Ok(subjects)
-    }
-
     pub async fn list_by_course_id(&self, course_id: &str) -> Result<Vec<Subject>, String> {
         let subjects = sqlx::query_as!(
             Subject,
