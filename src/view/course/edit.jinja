@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+{% set course = context %}
 
 <head>
     <meta charset="UTF-8">
@@ -7,10 +8,12 @@
     <title>Show a Course</title>
 </head>
 
+
 <body>
-    {% if course %}
-    <form action="/course/{{course.id}}/edit" method="post">
-        <p>Course Name: <input type="text" name="name" placeholder="Insert here the course name" value="{{course.name}}" /></p>
+    {% if context %}
+    <form action="/course/{{context.id}}/edit" method="post">
+        <p>Course Name: <input type="text" name="name" placeholder="Insert here the course name"
+                value="{{context.name}}" /></p>
         <p><input type="submit" value="Save" /></p>
     </form>
     {% endif %}

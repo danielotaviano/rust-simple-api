@@ -1,5 +1,8 @@
 use std::fs;
 
+use minijinja::render;
+use serde::Serialize;
+
 pub fn get_template(path: &str) -> Result<&'static str, String> {
     let def_path = format!("src/view/{path}.jinja");
 
@@ -21,4 +24,14 @@ pub fn get_template(path: &str) -> Result<&'static str, String> {
     };
     let static_content: &'static str = Box::leak(static_content.into_boxed_str());
     Ok(static_content)
+}
+
+pub fn render_template<T: Serialize>(template_name: &str, data: Option<T>) -> String {
+    let template = get_template(template_name)
+        .unwrap_or_else(|_| panic!("Failed to get template: {}", template_name));
+
+    match data {
+        Some(context) => render!(template, context),
+        None => render!(template),
+    }
 }

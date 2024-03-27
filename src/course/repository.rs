@@ -1,5 +1,6 @@
 use crate::{course::model::Course, infra};
 use sqlx::{Pool, Postgres};
+use std::error::Error;
 
 pub struct Repository {
     database: &'static Pool<Postgres>,
@@ -12,7 +13,7 @@ impl Repository {
         }
     }
 
-    pub async fn delete(&self, course_id: &str) -> Result<(), String> {
+    pub async fn delete(&self, course_id: &str) -> Result<(), Box<dyn Error>> {
         sqlx::query!(
             r#"
             DELETE FROM course WHERE id = $1
@@ -20,13 +21,12 @@ impl Repository {
             course_id
         )
         .execute(self.database)
-        .await
-        .expect("Error when trying to delete a course");
+        .await?;
 
         Ok(())
     }
 
-    pub async fn get_by_id(&self, course_id: &str) -> Result<Option<Course>, String> {
+    pub async fn get_by_id(&self, course_id: &str) -> Result<Option<Course>, Box<dyn Error>> {
         let course = sqlx::query_as!(
             Course,
             r#"
@@ -35,13 +35,12 @@ impl Repository {
             course_id
         )
         .fetch_optional(self.database)
-        .await
-        .expect("Error when trying to get a course");
+        .await?;
 
         Ok(course)
     }
 
-    pub async fn list(&self) -> Result<Vec<Course>, String> {
+    pub async fn list(&self) -> Result<Vec<Course>, Box<dyn Error>> {
         let subjects = sqlx::query_as!(
             Course,
             r#"
@@ -49,19 +48,12 @@ impl Repository {
             "#,
         )
         .fetch_all(self.database)
-        .await
-        .expect("Error when trying to get subjects");
+        .await?;
 
         Ok(subjects)
     }
 
-    pub async fn save(&self, course: &Course) -> Result<Course, String> {
-        let tx_result = self.database.begin().await;
-
-        if let Err(_) = tx_result {
-            return Err("Error when try to open a new transaction".to_string());
-        }
-
+    pub async fn save(&self, course: &Course) -> Result<Course, Box<dyn Error>> {
         sqlx::query!(
             r#"
             INSERT INTO course (id, name)

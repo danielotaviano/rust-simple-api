@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+{% set courses = context %}
 
 <head>
   <meta charset="UTF-8">
@@ -40,7 +41,7 @@
 
   function editCourse(id) {
     window.location.href = `/course/${id}/edit`;
-    
+
   }
 </script>
 

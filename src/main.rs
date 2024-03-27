@@ -1,5 +1,6 @@
 mod avatar;
 mod course;
+mod custom;
 mod infra;
 mod menu;
 mod student;
