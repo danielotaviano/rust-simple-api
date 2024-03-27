@@ -16,7 +16,7 @@ impl Repository {
     }
 
     pub async fn save(&self, avatar: &Avatar) -> Result<Avatar, String> {
-        let result = sqlx::query!(
+        sqlx::query!(
             r#"
             INSERT INTO avatar (id, fantasy_name, student_id)
             VALUES ($1, $2, $3)
@@ -27,16 +27,13 @@ impl Repository {
             avatar.get_student_id()
         )
         .execute(self.database)
-        .await;
+        .await.map_err(|e| e.to_string())?;
 
-        match result {
-            Err(e) => Err(e.to_string()),
-            _ => Ok(avatar.to_owned()),
-        }
+        Ok(avatar.clone())
     }
 
     pub async fn get_by_student_id(&self, student_id: &str) -> Result<Option<Avatar>, String> {
-        let result = sqlx::query_as!(
+        sqlx::query_as!(
             Avatar,
             r#"
             SELECT id, fantasy_name, student_id
@@ -47,16 +44,12 @@ impl Repository {
             student_id
         )
         .fetch_optional(self.database)
-        .await;
-
-        match result {
-            Err(e) => Err(e.to_string()),
-            Ok(r) => Ok(r),
-        }
+        .await
+        .map_err(|e| e.to_string())
     }
 
     pub async fn list(&self) -> Result<Vec<Avatar>, String> {
-        let avatars = sqlx::query_as!(
+        sqlx::query_as!(
             Avatar,
             r#"
             SELECT id, fantasy_name, student_id
@@ -64,11 +57,7 @@ impl Repository {
             "#
         )
         .fetch_all(self.database)
-        .await;
-
-        match avatars {
-            Ok(courses) => Ok(courses),
-            Err(e) => Err(e.to_string()),
-        }
+        .await
+        .map_err(|e| e.to_string())
     }
 }

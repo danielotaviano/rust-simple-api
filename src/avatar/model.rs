@@ -27,15 +27,15 @@ impl Avatar {
         nanoid!(10, &ALPHABET)
     }
 
-    pub fn get_id(&self) -> String {
-        self.id.clone()
+    pub fn get_id(&self) -> &String {
+        &self.id
     }
 
-    pub fn get_fantasy_name(&self) -> String {
-        self.fantasy_name.clone()
+    pub fn get_fantasy_name(&self) -> &String {
+        &self.fantasy_name
     }
 
-    pub fn get_student_id(&self) -> String {
-        self.student_id.clone()
+    pub fn get_student_id(&self) -> &String {
+        &self.student_id
     }
 }

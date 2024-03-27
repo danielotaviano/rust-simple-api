@@ -74,7 +74,7 @@ impl Repository {
 
         Ok(students
             .into_iter()
-            .filter(|s| s.get_course() == *course_id)
+            .filter(|s| s.get_course() == course_id)
             .collect())
     }
 
@@ -97,7 +97,7 @@ impl Repository {
                 grouped
                     .entry(course_id.clone())
                     .or_insert_with(|| ListStudentsGroupBy {
-                        name: course.get_name(),
+                        name: course.get_name().clone(),
                         students: Vec::new(),
                         total: 0,
                     });
@@ -125,7 +125,7 @@ impl Repository {
                 grouped
                     .entry(language.clone())
                     .or_insert_with(|| ListStudentsGroupBy {
-                        name: student.get_language(),
+                        name: student.get_language().clone(),
                         students: Vec::new(),
                         total: 0,
                     });
@@ -152,7 +152,7 @@ impl Repository {
                 let os_grouped = grouped
                     .entry(os.clone())
                     .or_insert_with(|| ListStudentsGroupBy {
-                        name: os,
+                        name: os.clone(),
                         students: Vec::new(),
                         total: 0,
                     });

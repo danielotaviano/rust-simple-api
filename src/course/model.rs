@@ -32,11 +32,11 @@ impl Course {
         nanoid!(10, &ALPHABET)
     }
 
-    pub fn get_id(&self) -> String {
-        self.id.clone()
+    pub fn get_id(&self) -> &String {
+        &self.id
     }
 
-    pub fn get_name(&self) -> String {
-        self.name.clone()
+    pub fn get_name(&self) -> &String {
+        &self.name
     }
 }

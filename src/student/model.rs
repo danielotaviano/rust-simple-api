@@ -42,31 +42,31 @@ impl Student {
         nanoid!(10, &ALPHABET)
     }
 
-    pub fn get_id(&self) -> String {
-        self.id.clone()
+    pub fn get_id(&self) -> &String {
+        &self.id
     }
 
-    pub fn get_first_name(&self) -> String {
-        self.first_name.clone()
+    pub fn get_first_name(&self) -> &String {
+        &self.first_name
     }
 
-    pub fn get_last_name(&self) -> String {
-        self.last_name.clone()
+    pub fn get_last_name(&self) -> &String {
+        &self.last_name
     }
 
-    pub fn get_course(&self) -> String {
-        self.course_id.clone()
+    pub fn get_course(&self) -> &String {
+        &self.course_id
     }
 
-    pub fn get_language(&self) -> String {
-        self.language.clone()
+    pub fn get_language(&self) -> &String {
+        &self.language
     }
 
-    pub fn get_email(&self) -> String {
-        self.email.clone()
+    pub fn get_email(&self) -> &String {
+        &self.email
     }
 
-    pub fn get_operational_systems(&self) -> Vec<String> {
-        self.operational_systems.clone()
+    pub fn get_operational_systems(&self) -> &Vec<String> {
+        &self.operational_systems
     }
 }

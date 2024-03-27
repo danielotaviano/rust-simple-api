@@ -29,19 +29,19 @@ impl Subject {
         nanoid!(10, &ALPHABET)
     }
 
-    pub fn get_id(&self) -> &str {
-        self.id.as_str()
+    pub fn get_id(&self) -> &String {
+        &self.id
     }
 
-    pub fn get_code(&self) -> &str {
-        self.code.as_str()
+    pub fn get_code(&self) -> &String {
+        &self.code
     }
 
-    pub fn get_name(&self) -> &str {
-        self.name.as_str()
+    pub fn get_name(&self) -> &String {
+        &self.name
     }
 
-    pub fn get_program(&self) -> &str {
-        self.program.as_str()
+    pub fn get_program(&self) -> &String {
+        &self.program
     }
 }

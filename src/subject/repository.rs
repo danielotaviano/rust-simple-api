@@ -128,7 +128,7 @@ impl Repository {
             "#,
         )
         .bind(relations_ids)
-        .bind(vec![subject.get_id(); courses_id.len()])
+        .bind(vec![subject.get_id().clone(); courses_id.len()])
         .bind(courses_id)
         .execute(&mut *tx)
         .await
