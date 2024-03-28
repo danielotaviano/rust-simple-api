@@ -194,10 +194,20 @@ impl Repository {
         let students = sqlx::query_as!(
             Student,
             r#"
-            SELECT s.id, first_name, last_name, course_id, language, email, operational_systems
-            FROM student s
-            LEFT JOIN avatar a on a.student_id = s.id
-            WHERE a.id is null 
+            SELECT
+                s.id,
+                first_name,
+                last_name,
+                course_id,
+                language,
+                email,
+                operational_systems
+            FROM
+                student s
+            LEFT JOIN avatar a ON
+                a.student_id = s.id
+            WHERE
+                a.student_id IS NULL
             "#
         )
         .fetch_all(self.database)

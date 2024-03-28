@@ -51,7 +51,7 @@ pub async fn create_avatar_html() -> impl IntoResponse {
 
 pub async fn create_avatar(Form(payload): Form<CreateAvatarControllerModel>) -> impl IntoResponse {
     match SERVICE.save(&payload.name, &payload.student).await {
-        Ok(_) => Redirect::to("avatars").into_response(),
+        Ok(_) => Redirect::to("/avatars").into_response(),
         Err(_) => StatusCode::INTERNAL_SERVER_ERROR.into_response(),
     }
 }
