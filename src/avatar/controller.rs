@@ -6,7 +6,6 @@ use axum::{
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    avatar,
     custom::HtmlResponse,
     student::{self, model::Student},
     view::render_template,
@@ -27,12 +26,12 @@ pub struct ListAvatarWithStudentControllerModel {
 }
 
 pub async fn list_avatar_html() -> impl IntoResponse {
-    let avatars_with_students = match SERVICE.list_with_students().await {
-        Ok(avatars) => avatars,
-        Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
+    let students = match SERVICE.list_with_students().await {
+        Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR).into_response(),
+        Ok(students) => students,
     };
 
-    let avatars_with_students: Vec<ListAvatarWithStudentControllerModel> = avatars_with_students
+    let avatars_with_students: Vec<ListAvatarWithStudentControllerModel> = students
         .into_iter()
         .map(|(avatar, student)| ListAvatarWithStudentControllerModel { avatar, student })
         .collect();
@@ -51,10 +50,7 @@ pub async fn create_avatar_html() -> impl IntoResponse {
 }
 
 pub async fn create_avatar(Form(payload): Form<CreateAvatarControllerModel>) -> impl IntoResponse {
-    match avatar::service::SERVICE
-        .save(&payload.name, &payload.student)
-        .await
-    {
+    match SERVICE.save(&payload.name, &payload.student).await {
         Ok(_) => Redirect::to("avatars").into_response(),
         Err(_) => StatusCode::INTERNAL_SERVER_ERROR.into_response(),
     }

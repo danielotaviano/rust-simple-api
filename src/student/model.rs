@@ -1,7 +1,7 @@
 use nanoid::nanoid;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Serialize, Debug)]
+#[derive(Clone, Serialize, Debug, Deserialize)]
 pub struct Student {
     pub id: String,
     pub first_name: String,

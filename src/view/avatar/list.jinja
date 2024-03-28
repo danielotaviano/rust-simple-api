@@ -1,5 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
+{% set payloads = context %}
+
 
 <head>
   <meta charset="UTF-8">
@@ -10,10 +12,10 @@
 <body>
   <h1>Avatar List</h1>
   <ul id="avatar-list">
-    {% for avatar in avatars %}
+    {% for payload in payloads %}
     <li>
-      <p>Fantasy Name: {{avatar.avatar.fantasy_name}}</p>
-      <p>Student Name: {{avatar.student.first_name}} {{avatar.student.last_name}}</p>
+      <p>Fantasy Name: {{payload.avatar.fantasy_name}}</p>
+      <p>Student Name: {{payload.student.first_name}} {{payload.student.last_name}}</p>
     </li>
     {% endfor %}
   </ul>

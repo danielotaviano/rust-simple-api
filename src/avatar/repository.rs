@@ -1,5 +1,5 @@
 use super::model::Avatar;
-use crate::infra::{self};
+use crate::{infra, student::model::Student};
 use sqlx::{Pool, Postgres};
 use std::error::Error;
 
@@ -53,17 +53,33 @@ impl Repository {
         Ok(avatar)
     }
 
-    pub async fn list(&self) -> Result<Vec<Avatar>, Box<dyn Error>> {
-        let avatars = sqlx::query_as!(
-            Avatar,
+    pub async fn list_with_student(&self) -> Result<Vec<(Avatar, Student)>, Box<dyn Error>> {
+        let rows = sqlx::query!(
             r#"
-            SELECT id, fantasy_name, student_id
-            FROM avatar
+            select
+                row_to_json(a.*) "avatar",
+                row_to_json(s.*) "student" 
+            from
+                avatar a
+            inner join student s on
+                s.id = a.student_id
             "#
         )
         .fetch_all(self.database)
         .await?;
 
-        Ok(avatars)
+        let avatars_with_student: Vec<(Avatar, Student)> = rows
+            .into_iter()
+            .filter_map(|row| match (row.avatar, row.student) {
+                (Some(avatar), Some(student)) => {
+                    let avatar: Avatar = serde_json::from_value(avatar).ok()?;
+                    let student: Student = serde_json::from_value(student).ok()?;
+                    Some((avatar, student))
+                }
+                _ => None,
+            })
+            .collect();
+
+        Ok(avatars_with_student)
     }
 }
