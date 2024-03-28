@@ -8,27 +8,29 @@
 </head>
 
 <body>
-    {% if student %}
-    <p>Id: {{student.id}}</p>
-    <p>First Name: {{student.first_name}}</p>
-    <p>Last Name: {{student.last_name}}</p>
-    <p>Email: {{student.email}}</p>
-    <p>Course: {{course.name}}</p>
-    <p> Programming Language:{{student.language}}</p>
+    {% if context.student %}
+    <p>Id: {{context.student.id}}</p>
+    <p>First Name: {{context.student.first_name}}</p>
+    <p>Last Name: {{context.student.last_name}}</p>
+    <p>Email: {{context.student.email}}</p>
+    <p>Course: {{context.course.name}}</p>
+    <p> Programming Language:{{context.student.language}}</p>
     <p> Operational Systems:
     <ul>
-        {% for os in student.operational_systems %}
+        {% for os in context.student.operational_systems %}
         <li>{{os}}</li>
         {% endfor %}
     </ul>
     </p>
+    {% if context.subjects%}
     <p> Subjects:
     <ul>
-        {% for subject in subjects %}
+        {% for subject in context.subjects %}
         <li>{{subject.name}}</li>
         {% endfor %}
     </ul>
     </p>
+    {% endif %}
     {% else %}
     <h2>Student not found!</h2>
     {% endif %}

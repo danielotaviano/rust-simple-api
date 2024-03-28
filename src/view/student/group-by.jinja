@@ -8,12 +8,12 @@
 </head>
 
 <body>
-  <h1>Student List by {{entity}}</h1>
+  <h1>Student Groupment</h1>
   <ul>
-    {% for entity in entities %}
+    {% for entity in context %}
     <li>
       <h2>{{entity.name}}</h2>
-      <p>{{entity.total}} students in total</p>
+      <p>{{entity.students|length}} students in total</p>
       <ul>
         {% for student in entity.students %}
         <li>

@@ -10,7 +10,7 @@
 <body>
   <h1>Student List</h1>
   <ul id="student-list">
-    {% for payload in payloads %}
+    {% for payload in context %}
     <li><a href="/student/{{payload.student.id}}">{{payload.student.first_name}}</a> {% if payload.avatar %}
       ({{payload.avatar.fantasy_name}}) {% endif %}
       <button onclick="deleteStudent('{{payload.student.id}}')">Delete</button>

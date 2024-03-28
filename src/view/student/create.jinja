@@ -15,7 +15,7 @@
     <p>Course:
       <select name="course">
         <option value="" selected hidden>Choose one</option>
-        {% for course in courses %}
+        {% for course in context.courses %}
         <option value="{{course.id}}">{{course.name}}</option>
         {% endfor %}
       </select>
@@ -27,7 +27,7 @@
       <input type="radio" name="language" value="Javascript">Javascript</input>
     </p>
     <p> Operational Systems:
-      {% for os in opsys %}
+      {% for os in context.os %}
       <input type="checkbox" name="operational_systems" value="{{os}}">{{os}}</input>
       {% endfor %}
     </p>
