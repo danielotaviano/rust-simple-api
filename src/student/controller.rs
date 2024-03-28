@@ -1,17 +1,17 @@
 use super::model::Student;
 use super::service::SERVICE;
 use crate::avatar::model::Avatar;
+use crate::course::model::Course;
+use crate::custom::HtmlResponse;
 use crate::subject::model::Subject;
-use crate::view::get_template;
-use crate::{avatar, subject};
+use crate::view::render_template;
 use crate::{course, student::service::GroupBy};
 use axum::{
     extract::{Path, Query},
     http::StatusCode,
-    response::{Html, IntoResponse, Redirect},
+    response::{IntoResponse, Redirect},
 };
 use axum_extra::extract::Form;
-use minijinja::render;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Deserialize)]
@@ -35,167 +35,122 @@ pub struct ListStudentControllerModel {
     avatar: Option<Avatar>,
 }
 
+#[derive(Serialize)]
+pub struct CreateStudentHtmlControllerModel {
+    courses: Vec<Course>,
+    os: Vec<String>,
+}
+
+#[derive(Serialize)]
+pub struct ShowStudentHtmlControllerModel {
+    student: Student,
+    course: Course,
+    subjects: Vec<Subject>,
+}
+
+#[derive(Serialize)]
+pub struct ListStudentGroupByHtmlControllerModel {
+    name: String,
+    students: Vec<Student>,
+}
+
 pub async fn student_list_html() -> impl IntoResponse {
-    let students = SERVICE.list_students().await;
+    let students_with_avatar = match SERVICE.list_students_with_avatar().await {
+        Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
+        Ok(students_with_avatar) => students_with_avatar,
+    };
 
-    if let Err(_) = students {
-        return (StatusCode::INTERNAL_SERVER_ERROR).into_response();
-    }
-
-    let mut avatar_futures = Vec::new();
-
-    for student in students.as_ref().unwrap() {
-        let avatar = async move {
-            let student_id = student.get_id().clone();
-            avatar::service::SERVICE
-                .get_by_student_id(&student_id)
-                .await
-                .unwrap()
-        };
-        avatar_futures.push(avatar);
-    }
-
-    let avatars = futures::future::join_all(avatar_futures).await;
-
-    let payload: Vec<_> = students
-        .as_ref()
-        .unwrap()
+    let students_struct: Vec<ListStudentControllerModel> = students_with_avatar
         .into_iter()
-        .map(|s| ListStudentControllerModel {
-            student: s.clone(),
-            avatar: avatars
-                .clone()
-                .into_iter()
-                .find(|a| {
-                    a.as_ref()
-                        .map(|a| a.get_student_id() == s.get_id())
-                        .unwrap_or(false)
-                })
-                .unwrap_or(None),
+        .map(|student| ListStudentControllerModel {
+            student: student.0,
+            avatar: student.1,
         })
         .collect();
 
-    let template = get_template("student/list").unwrap();
-    let r = render!(template, payloads => payload);
-    Html(r).into_response()
+    render_template("student/list", students_struct.into()).to_html_response()
 }
 
 pub async fn create_student_form_html() -> impl IntoResponse {
-    let courses = course::service::SERVICE.list_courses().await;
-    let os = vec!["OSX", "Windows", "Linux"];
-
-    match courses {
+    match course::service::SERVICE.list_courses().await {
+        Err(_) => StatusCode::INTERNAL_SERVER_ERROR.into_response(),
         Ok(courses) => {
-            let template = get_template("student/create").unwrap();
-            let r = render!(template, courses => courses, opsys => os);
-            Html(r).into_response()
+            let os = vec!["OSX", "Windows", "Linux"];
+
+            let context = CreateStudentHtmlControllerModel {
+                courses,
+                os: os.into_iter().map(String::from).collect(),
+            };
+
+            render_template("student/create", context.into()).to_html_response()
         }
-        Err(_) => (StatusCode::INTERNAL_SERVER_ERROR).into_response(),
     }
 }
 
 pub async fn show_student_html(Path(student_id): Path<String>) -> impl IntoResponse {
-    let student = SERVICE.get_student_by_id(&student_id).await;
+    let student = match SERVICE
+        .get_student_with_course_and_subjects(&student_id)
+        .await
+    {
+        Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
+        Ok(student) => student,
+    };
 
-    if let Err(_) = student {
-        return (StatusCode::INTERNAL_SERVER_ERROR).into_response();
-    }
+    let context = ShowStudentHtmlControllerModel {
+        student: student.0,
+        course: student.1,
+        subjects: student.2,
+    };
 
-    let student_result = student.unwrap();
-
-    match student_result {
-        None => (StatusCode::NOT_FOUND).into_response(),
-        Some(student) => {
-            let course = course::service::SERVICE
-                .get_course_by_id(&student.get_course())
-                .await
-                .expect("error when trying to get course");
-
-            let subjects: Option<Vec<Subject>> = match &course {
-                None => None,
-                Some(c) => Some(
-                    subject::service::SERVICE
-                        .list_by_course_id(&c.get_id())
-                        .await
-                        .expect("Error whwn trying to get subjects"),
-                ),
-            };
-
-            let template = get_template("student/show").unwrap();
-            let r = render!(template, student => student, course => course, subjects, subjects);
-
-            Html(r).into_response()
-        }
-    }
+    render_template("student/show", context.into()).to_html_response()
 }
 
 pub async fn list_student_group_by_html(Query(q): Query<GroupByQueryParam>) -> impl IntoResponse {
     let entity_enum = match q.entity.as_str() {
-        "course" => Some(GroupBy::COURSE),
-        "language" => Some(GroupBy::LANGUAGE),
-        "os" => Some(GroupBy::OS),
-        _ => None,
+        "course" => GroupBy::COURSE,
+        "language" => GroupBy::LANGUAGE,
+        "os" => GroupBy::OS,
+        _ => return (StatusCode::BAD_REQUEST, "Invalid entity to group").into_response(),
     };
 
-    if entity_enum.is_none() {
-        return (StatusCode::BAD_REQUEST, "Invalid entity to group").into_response();
+    match SERVICE.list_group_by(&entity_enum).await {
+        Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR).into_response(),
+        Ok(entities) => {
+            let context: Vec<ListStudentGroupByHtmlControllerModel> = entities
+                .into_iter()
+                .map(|entity| ListStudentGroupByHtmlControllerModel {
+                    name: entity.0,
+                    students: entity.1,
+                })
+                .collect();
+
+            render_template("student/group-by", context.into()).to_html_response()
+        }
     }
-
-    let payload = SERVICE.list_group_by(entity_enum.as_ref().unwrap()).await;
-
-    if let Err(_) = payload {
-        return (StatusCode::INTERNAL_SERVER_ERROR).into_response();
-    }
-
-    let template = get_template("student/group-by").unwrap();
-    let r =
-        render!(template, entities => payload.unwrap(), entity => entity_enum.as_ref().unwrap());
-
-    Html(r).into_response()
 }
 
 pub async fn create_student(
     Form(student): Form<CreateStudentControllerModel>,
 ) -> impl IntoResponse {
-    let course = course::service::SERVICE
-        .get_course_by_id(&student.course)
-        .await;
-
-    if let Err(_) = course {
-        return (StatusCode::INTERNAL_SERVER_ERROR).into_response();
-    }
-
-    let course_result = course.unwrap();
-    if let None = course_result {
-        return (StatusCode::UNPROCESSABLE_ENTITY).into_response();
-    }
-
-    let result = SERVICE
+    match SERVICE
         .save(
             &student.first_name,
             &student.last_name,
             &student.course,
             &student.language,
             &student.email,
-            student
-                .operational_systems
-                .into_iter()
-                .map(|s| s.to_string())
-                .collect(),
+            student.operational_systems.iter().collect(),
         )
-        .await;
-
-    match result {
+        .await
+    {
+        Err(_) => StatusCode::INTERNAL_SERVER_ERROR.into_response(),
         Ok(_) => Redirect::to("/students").into_response(),
-        Err(_) => (StatusCode::INTERNAL_SERVER_ERROR).into_response(),
     }
 }
 
 pub async fn delete_student(Path(student_id): Path<String>) -> impl IntoResponse {
-    let result = SERVICE.delete(student_id).await;
-
-    match result {
-        Err(message) => (StatusCode::INTERNAL_SERVER_ERROR, message).into_response(),
-        Ok(_) => (StatusCode::OK).into_response(),
+    match SERVICE.delete(student_id).await {
+        Err(_) => StatusCode::INTERNAL_SERVER_ERROR.into_response(),
+        Ok(_) => StatusCode::OK.into_response(),
     }
 }

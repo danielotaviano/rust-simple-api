@@ -43,7 +43,7 @@ impl Service {
 
     pub async fn get_course_by_id(
         &self,
-        course_id: &String,
+        course_id: &str,
     ) -> Result<Option<Course>, Box<dyn Error>> {
         self.repository.get_by_id(&course_id).await
     }

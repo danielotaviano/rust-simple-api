@@ -1,7 +1,7 @@
 use nanoid::nanoid;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Serialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Subject {
     pub id: String,
     pub code: String,

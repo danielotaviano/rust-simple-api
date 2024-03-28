@@ -19,7 +19,7 @@ impl Student {
         course_id: &str,
         language: &str,
         email: &str,
-        operational_systems: Vec<String>,
+        operational_systems: Vec<&String>,
     ) -> Self {
         Student {
             id: Student::generate_id(),
@@ -28,7 +28,10 @@ impl Student {
             course_id: course_id.to_string(),
             language: language.to_string(),
             email: email.to_string(),
-            operational_systems: operational_systems,
+            operational_systems: operational_systems
+                .into_iter()
+                .map(|s| s.to_string())
+                .collect(),
         }
     }
 
