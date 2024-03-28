@@ -13,6 +13,6 @@ CREATE TABLE subject_course (
     subject_id VARCHAR NOT NULL,
     course_id VARCHAR NOT NULL,
     FOREIGN KEY (subject_id) REFERENCES subject(id),
-    FOREIGN KEY (course_id) REFERENCES course(id)
+    FOREIGN KEY (course_id) REFERENCES course(id),
     UNIQUE (subject_id, course_id)
 );

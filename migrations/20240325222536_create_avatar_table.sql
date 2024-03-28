@@ -6,5 +6,6 @@ CREATE TABLE avatar (
     fantasy_name VARCHAR NOT NULL,
     student_id VARCHAR NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (student_id) REFERENCES student(id)
+    FOREIGN KEY (student_id) REFERENCES student(id),
+    UNIQUE (student_id)
 );
