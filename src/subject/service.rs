@@ -1,9 +1,7 @@
+use super::{model::Subject, repository::Repository};
+use crate::course::model::Course;
 use once_cell::sync::Lazy;
-
-use super::{
-    model::Subject,
-    repository::{Repository, SubjectWithCourses},
-};
+use std::error::Error;
 
 pub static SERVICE: Lazy<Service> = Lazy::new(Service::new);
 
@@ -24,15 +22,12 @@ impl Service {
         name: &str,
         program: &str,
         courses_id: Vec<&str>,
-    ) -> Result<Subject, String> {
+    ) -> Result<Subject, Box<dyn Error>> {
         let subject = Subject::new(code, name, program);
         self.repository.save(&subject, courses_id).await
     }
 
-    pub async fn list_with_courses(&self) -> Result<Vec<SubjectWithCourses>, String> {
+    pub async fn list_with_courses(&self) -> Result<Vec<(Subject, Vec<Course>)>, Box<dyn Error>> {
         self.repository.list_with_courses().await
-    }
-    pub async fn list_by_course_id(&self, course_id: &str) -> Result<Vec<Subject>, String> {
-        self.repository.list_by_course_id(course_id).await
     }
 }

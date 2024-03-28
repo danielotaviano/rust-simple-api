@@ -1,9 +1,11 @@
-use axum::response::{Html, IntoResponse, Redirect};
+use axum::{
+    http::StatusCode,
+    response::{IntoResponse, Redirect},
+};
 use axum_extra::extract::Form;
-use minijinja::render;
 use serde::Deserialize;
 
-use crate::{course, subject, view::get_template};
+use crate::{course, custom::HtmlResponse, subject, view::render_template};
 
 #[derive(Deserialize, Debug)]
 pub struct CreateSubjectControllerModel {
@@ -13,32 +15,22 @@ pub struct CreateSubjectControllerModel {
     courses: Vec<String>,
 }
 
-pub async fn list_html() -> Html<String> {
-    let payloads = super::service::SERVICE
-        .list_with_courses()
-        .await
-        .expect("error when trying to get subjects");
-
-    let template = get_template("subject/list").unwrap();
-    let r = render!(template, payloads => payloads);
-
-    Html(r)
+pub async fn list_html() -> impl IntoResponse {
+    match super::service::SERVICE.list_with_courses().await {
+        Err(_) => StatusCode::INTERNAL_SERVER_ERROR.into_response(),
+        Ok(subjects) => render_template("subject/list", subjects.into()).to_html_response(),
+    }
 }
 
 pub async fn create_html() -> impl IntoResponse {
-    let courses = course::service::SERVICE
-        .list_courses()
-        .await
-        .expect("Error when trying to get courses");
-
-    let template = get_template("subject/create").unwrap();
-    let r = render!(template, courses => courses);
-
-    Html(r)
+    match course::service::SERVICE.list_courses().await {
+        Err(_) => StatusCode::INTERNAL_SERVER_ERROR.into_response(),
+        Ok(courses) => render_template("subject/create", courses.into()).to_html_response(),
+    }
 }
 
 pub async fn create(Form(payload): Form<CreateSubjectControllerModel>) -> impl IntoResponse {
-    subject::service::SERVICE
+    match subject::service::SERVICE
         .save(
             &payload.code,
             &payload.name,
@@ -46,7 +38,8 @@ pub async fn create(Form(payload): Form<CreateSubjectControllerModel>) -> impl I
             payload.courses.iter().map(|s| s.as_str()).collect(),
         )
         .await
-        .expect("Error when trying to create");
-
-    Redirect::to("/subjects")
+    {
+        Err(_) => StatusCode::INTERNAL_SERVER_ERROR.into_response(),
+        Ok(_) => Redirect::to("/subjects").into_response(),
+    }
 }

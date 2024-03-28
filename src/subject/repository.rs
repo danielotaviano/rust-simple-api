@@ -1,16 +1,12 @@
+use std::error::Error;
+
 use super::model::Subject;
 use crate::{course::model::Course, infra};
 use nanoid::nanoid;
-use serde::Serialize;
 use serde_json;
 use sqlx::Row;
 use sqlx::{Pool, Postgres};
 
-#[derive(Serialize)]
-pub struct SubjectWithCourses {
-    subject: Subject,
-    courses: Vec<Course>,
-}
 pub struct Repository {
     database: &'static Pool<Postgres>,
 }
@@ -32,29 +28,7 @@ impl Repository {
         nanoid!(10, &ALPHABET)
     }
 
-    pub async fn list_by_course_id(&self, course_id: &str) -> Result<Vec<Subject>, String> {
-        let subjects = sqlx::query_as!(
-            Subject,
-            r#"
-            select
-                distinct s.*
-            from
-                subject s
-            inner join subject_course sc on
-                sc.subject_id = s.id
-            where
-                sc.course_id = $1
-            "#,
-            course_id
-        )
-        .fetch_all(self.database)
-        .await
-        .expect("Error when trying to get subjects");
-
-        Ok(subjects)
-    }
-
-    pub async fn list_with_courses(&self) -> Result<Vec<SubjectWithCourses>, String> {
+    pub async fn list_with_courses(&self) -> Result<Vec<(Subject, Vec<Course>)>, Box<dyn Error>> {
         let rows = sqlx::query(
             r#"
             select
@@ -71,10 +45,9 @@ impl Repository {
             "#,
         )
         .fetch_all(self.database)
-        .await
-        .expect("Error when trying to get subjects");
+        .await?;
 
-        let subject_with_courses: Vec<SubjectWithCourses> = rows
+        let subject_with_courses: Vec<(Subject, Vec<Course>)> = rows
             .iter()
             .map(|row| {
                 let subject = Subject {
@@ -84,23 +57,25 @@ impl Repository {
                     program: row.get("program"),
                 };
 
-                let courses: Vec<Course> = serde_json::from_value(row.get("courses")).unwrap();
+                let courses: Vec<Course> =
+                    serde_json::from_value(row.get("courses")).unwrap_or(vec![]);
 
-                SubjectWithCourses { subject, courses }
+                (subject, courses)
             })
             .collect();
 
         Ok(subject_with_courses)
     }
 
-    pub async fn save(&self, subject: &Subject, courses_id: Vec<&str>) -> Result<Subject, String> {
-        let tx_result = self.database.begin().await;
-
-        if let Err(_) = tx_result {
-            return Err("Error when try to open a new transaction".to_string());
-        }
-
-        let mut tx = tx_result.unwrap();
+    pub async fn save(
+        &self,
+        subject: &Subject,
+        courses_id: Vec<&str>,
+    ) -> Result<Subject, Box<dyn Error>> {
+        let mut tx = match self.database.begin().await {
+            Err(_) => return Err("Error when try to open a new transaction".into()),
+            Ok(tx) => tx,
+        };
 
         sqlx::query!(
             r#"
@@ -114,8 +89,7 @@ impl Repository {
             subject.get_program()
         )
         .execute(&mut *tx)
-        .await
-        .expect("Error when trying to add a subject");
+        .await?;
 
         let mut relations_ids = vec![];
         relations_ids.resize_with(courses_id.len(), Repository::generate_relation_id);
@@ -131,12 +105,9 @@ impl Repository {
         .bind(vec![subject.get_id().clone(); courses_id.len()])
         .bind(courses_id)
         .execute(&mut *tx)
-        .await
-        .expect("Error when trying to save relation");
+        .await?;
 
-        tx.commit()
-            .await
-            .expect("Error when trying to commit a transaction");
+        tx.commit().await?;
 
         Ok(subject.clone())
     }
