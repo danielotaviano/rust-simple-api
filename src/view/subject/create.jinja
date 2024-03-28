@@ -13,7 +13,7 @@
     <p>Subject Name: <input type="text" name="name" placeholder="Insert here the subject name" /></p>
     <p> Subject Courses:
       <select name="courses" multiple>
-        {% for course in courses %}
+        {% for course in context %}
         <option value="{{course.id}}">{{course.name}}</option>
         {% endfor %}
       </select>

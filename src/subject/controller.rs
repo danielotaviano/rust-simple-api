@@ -3,9 +3,16 @@ use axum::{
     response::{IntoResponse, Redirect},
 };
 use axum_extra::extract::Form;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
-use crate::{course, custom::HtmlResponse, subject, view::render_template};
+use crate::{
+    course::{self, model::Course},
+    custom::HtmlResponse,
+    subject,
+    view::render_template,
+};
+
+use super::model::Subject;
 
 #[derive(Deserialize, Debug)]
 pub struct CreateSubjectControllerModel {
@@ -15,10 +22,25 @@ pub struct CreateSubjectControllerModel {
     courses: Vec<String>,
 }
 
+#[derive(Serialize)]
+pub struct ListSubjectHtmlControllerModel {
+    subject: Subject,
+    courses: Vec<Course>,
+}
+
 pub async fn list_html() -> impl IntoResponse {
     match super::service::SERVICE.list_with_courses().await {
         Err(_) => StatusCode::INTERNAL_SERVER_ERROR.into_response(),
-        Ok(subjects) => render_template("subject/list", subjects.into()).to_html_response(),
+        Ok(subjects) => {
+            let context: Vec<_> = subjects
+                .into_iter()
+                .map(|subject| ListSubjectHtmlControllerModel {
+                    subject: subject.0,
+                    courses: subject.1,
+                })
+                .collect();
+            render_template("subject/list", context.into()).to_html_response()
+        }
     }
 }
 
